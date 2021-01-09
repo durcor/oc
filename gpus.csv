@@ -1,6 +1,6 @@
-GPU,Max Clock,Max Volt
-AMD Radeon RX 5700 XT,2050,1100
-Radeon RX 580 Series,,
-Radeon RX 590 Series,,
-AMD Radeon (TM) RX 480 Graphics,,
-AMD Radeon (TM) R9 380 Series,,
+GPU,Max Clock,Max Volt,Max TDP
+AMD Radeon RX 5700 XT,2035,1150,265
+Radeon RX 580 Series,1560,,
+Radeon RX 590 Series,1560,,
+AMD Radeon (TM) RX 480 Graphics,,,
+AMD Radeon (TM) R9 380 Series,,,
