@@ -1,0 +1,9 @@
+[Unit]
+Description=AMDGPU Overclock
+
+[Service]
+ExecStart=/bin/oc
+WorkingDirectory=/usr/share/oc
+
+[Install]
+WantedBy=default.target
