@@ -23,16 +23,14 @@ get_info()
 
 # Set conservative defaults for a GPU overclock if overclock parameters aren't
 # defined.
-# if [ -n "$MAX_TDP" ] || [ -n "$MAX_CLOCK" ] || [ -n "$MAX_VOLT" ]; then
-# 	MAX_CLOCK=$(get_info 2)
-# 	MAX_VOLT=$(get_info 3)
-# 	MAX_TDP=$(get_info 4)
-# fi
+[ -z "$MAX_TDP" ] && MAX_TDP=$(get_info 4)
+[ -z "$MAX_CLOCK" ] && MAX_CLOCK=$(get_info 2)
+[ -z "$MAX_VOLT" ] && MAX_VOLT=$(get_info 3)
 
-[ "$USER" != "root" ] && {
-	echo "$0 needs to be run by root."
-	exit 1
-}
+# [ "$USER" != "root" ] && {
+# 	echo "$0 needs to be run by root."
+# 	exit 1
+# }
 
 gpu_dir="/sys/class/drm/card0/device"
 # gpu_dir="/sys/class/drm/card1/device"
@@ -43,8 +41,8 @@ if [ ! -d "$gpu_dir" ]; then
 elif [ ! -e "$gpu_dir/pp_od_clk_voltage" ]; then
 	if [ -e /etc/default/grub ]; then
 		echo "AMDGPU overclocking is not enabled, so enabling now for next boot."
-		sed '/GRUB_CMDLINE_LINUX_DEFAULT/ s/"$/ amdgpu.ppfeaturemask=0xffffffff"' /etc/default/grub
-		grub-mkconfig -o /boot/grub/grub.cfg
+		sudo sed '/GRUB_CMDLINE_LINUX_DEFAULT/ s/"$/ amdgpu.ppfeaturemask=0xffffffff"' /etc/default/grub
+		sudo grub-mkconfig -o /boot/grub/grub.cfg
 		echo "Would you like to reboot now to enable AMDGPU overclocking? [y/n]"
 		read -r reboot_now
 		case $reboot_now in
@@ -67,13 +65,13 @@ fi
 
 overclock()
 {
-	echo "Changing the TDP of your $GPU to $MAX_TDP"
-	echo "${MAX_TDP}000000" > "$gpu_dir/hwmon/$(ls $gpu_dir/hwmon)/power1_cap"
+	echo "Changing the TDP of your $GPU to $MAX_TDP W"
+	sudo sh -c "echo ${MAX_TDP}000000 > $gpu_dir/hwmon/$(ls $gpu_dir/hwmon)/power1_cap"
 
 	echo "Clocking your $GPU to $MAX_CLOCK MHz @ $MAX_VOLT mV"
-	echo "s $(grep -B 1 "OD_MCLK" $gpu_dir/pp_od_clk_voltage | head -1 | awk -F':' '{print $1}') $MAX_CLOCK $MAX_VOLT" > $gpu_dir/pp_od_clk_voltage
+	sudo sh -c "echo \"s $(grep -B 1 OD_MCLK $gpu_dir/pp_od_clk_voltage | head -1 | awk -F':' '{print $1}') $MAX_CLOCK $MAX_VOLT\" > $gpu_dir/pp_od_clk_voltage"
 	# echo "m $(grep -B 1 "OD_VDDC_CURVE" $gpu_dir/pp_od_clk_voltage | head -1 | awk -F':' '{print $1}') 1850 850" > $gpu_dir/pp_od_clk_voltage
-	echo "c" > $gpu_dir/pp_od_clk_voltage
+	sudo sh -c "echo c > $gpu_dir/pp_od_clk_voltage"
 
 	echo "Reclock of your $GPU complete!"
 }
